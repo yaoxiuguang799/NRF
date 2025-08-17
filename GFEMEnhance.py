@@ -50,7 +50,7 @@ def search_window(irow, icol, nrow, ncol, w=3):
 
 
 def guided_filter(p, I, eps):
-    """简单一维引导滤波（Closed‐Form Guided Filter公式）."""
+    """Closed‐Form Guided Filter."""
     mean_I = np.mean(I)
     mean_p = np.mean(p)
     corr_I = np.mean(I * I)
@@ -153,7 +153,7 @@ class GuidedFilterRefiner:
         return refine_pwvs, mask
 
 # =============================================================================
-# Example use  (you can directly run the file)
+# MAIN
 # =============================================================================
 if __name__ == "__main__":
     # ---------- INPUT PATHS ----------
@@ -171,5 +171,6 @@ if __name__ == "__main__":
 
     refiner = GuidedFilterRefiner(window=3, eps=0.1, max_iter=10)
     refine_pwvs, mask = refiner.refine(pwvs_avc, pwvs_nbcm, mask)
+
 
     writeH5py(path_NRF_PWV, refine_pwvs, lat, lon, time)
