@@ -110,16 +110,15 @@ class ERA5Interpolator:
 
 
 
-class AVCGapFiller:
+class AVCMGapFiller:
     """
     Fill MOD PWV gaps using ERA5-derived avc/avce model.
 
     Parameters
     ----------
-    filter_file : str   -> Filtered MOD PWV file (.h5)
-    filter_mask_file : str -> Filter mask file (.h5)
+    nbcm_file : str   -> bias-corrected MOD PWV file (.h5)
     era5_interp_file : str -> ERA5 interpolated PWV file (.h5)
-    avc_pwv_out : str -> Output file for avc PWV (.h5)
+    avc_pwv_out : str -> Output file for avcm PWV (.h5)
     avc_model_out : str -> Output file for avc/avce model parameters (.h5)
     plot_mod : bool -> Whether to export sample plots
     """
@@ -236,15 +235,15 @@ class AVCGapFiller:
 
 
 # =============================================================================
-# Example use  (you can directly run the file)
+# MAIN
 # =============================================================================
 if __name__ == "__main__":
     # ---------- INPUT PATHS ----------
     path_NBCM_PWV = './NBCM/nbcm_corrected.h5'
-    path_ERA5 = './data/ERA5/'
+    path_ERA5 = './data/ERA5/ERA5.h5'
 
     # ---------- OUTPUT PATHS ----------
-    path_ERA5_interp = './data/ERA5/'
+    path_ERA5_interp = './data/ERA5/ERA5_interp.h5'
     path_AVCM_PWV = './AVCM/avcm_fused.h5'
     path_AVCM_modle = './AVCM/avcm_model.h5'
 
@@ -259,20 +258,21 @@ if __name__ == "__main__":
     maxLon = np.max(lon); minLon = np.min(lon)
 
     # ----------------- step 1 : interpolate ERA5 to 0.01°×0.01° ------------- #
-    # 创建插值器
+    # 
     interpolator = ERA5Interpolator(target_lat_range=(minLat, maxLat),
                                     target_lon_range=(minLon, maxLon),
                                     resolution=0.01)
-    # 自动选择方法（小区域 → kriging，大区域 → cubic）
+    # method selection（small region → kriging，large region → cubic）
     ERA5_interp = interpolator.interpolate(ds, "tcwv", method="auto")
     writeH5py(path_ERA5_interp, ERA5_interp, lat, lon)
 
     # ---------------- step 2 ： Build ACVM to gapfill MODIS PWV --------------- #
-    fusion = AVCGapFiller(
+    fusion = AVCMGapFiller(
     filter_file=path_NBCM_PWV,
     era5_interp_file=path_ERA5_interp,
     avc_pwv_out=path_AVCM_PWV,
     avc_model_out=path_AVCM_modle,
     plot_mod=True
     )
+
     fusion.run()
