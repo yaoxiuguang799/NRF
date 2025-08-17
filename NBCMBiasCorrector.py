@@ -8,9 +8,65 @@ from tqdm import tqdm
 from sklearn.model_selection import GridSearchCV, train_test_split
 from sklearn.ensemble import RandomForestRegressor
 import joblib
-from processUtil import outlier_with_sigma, accuracyEvaluate
 
+def outlier_with_sigma(data,thod=3):
+    # 
+    mean = np.mean(data)
+    std_dev = np.std(data)
+    # 
+    threshold_upper = mean + thod * std_dev
+    threshold_lower = mean - thod * std_dev
+    # 
+    ind = np.where((data <= threshold_lower) | (data >= threshold_upper) )[0]
+    return ind
 
+def accuracyEvaluate(y_true,y_pred,removeOutlier=False):
+    R,BIAS,MAE,MRE,RMSE,KGE = 0.0,0.0,0.0,0.0,0.0,0.0
+    y_true_collector = np.copy(y_true)
+    y_pred_collector = np.copy(y_pred)
+
+    ### 1. remove nan
+    idx = np.where(np.isnan(y_true_collector))
+    y_true_collector = np.delete(y_true_collector,idx,axis=0)
+    y_pred_collector = np.delete(y_pred_collector,idx,axis=0)
+    idx = np.where(np.isnan(y_pred_collector))
+    y_true_collector = np.delete(y_true_collector,idx,axis=0)
+    y_pred_collector = np.delete(y_pred_collector,idx,axis=0)
+    if len(y_pred_collector) <= 1:
+        return R,BIAS,MAE,MRE,RMSE,KGE
+    
+    ### 2. remove outliers
+    dy = y_pred_collector - y_true_collector
+    if removeOutlier:
+        idx = outlier_with_sigma(dy)
+        # idx = out_range_method(dy)
+        dy_smooth = np.delete(dy,idx,axis=0)
+        y_true_collector = np.delete(y_true_collector,idx,axis=0)
+        y_pred_collector = np.delete(y_pred_collector,idx,axis=0)
+    else:
+        dy_smooth = dy
+
+    ### 3.1 Pearson Correlation Coefficient
+    R = pearsonr(y_true_collector, y_pred_collector)[0]
+
+    ### 3.2 bias
+    BIAS = np.mean(dy_smooth)
+
+    ### 3.3 mae
+    MAE = np.sum(np.abs(dy_smooth))/len(dy_smooth)  
+
+    ### 3.4 mre
+    MRE = np.sum(np.abs(dy_smooth))/np.sum(np.abs(y_true_collector)) 
+
+    ### 3.5 rmse
+    RMSE = np.sqrt(mean_squared_error(y_true_collector, y_pred_collector))
+
+    ### 3.6 KGE
+    beta = np.mean(y_pred_collector)/np.mean(y_true_collector)
+    gamma = np.std(y_pred_collector)/np.std(y_true_collector)
+    KGE = 1 - np.sqrt((R-1)*(R-1) + (beta-1)*(beta-1) + (gamma-1)*(gamma-1))
+
+    return R,BIAS,MAE,MRE,RMSE,KGE
 
 class NBCMBiasCorrector:
     """
@@ -335,3 +391,4 @@ if __name__ == "__main__":
     )
 
     nbcm.run()
+
