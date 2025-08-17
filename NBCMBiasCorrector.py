@@ -370,11 +370,11 @@ class NBCMBiasCorrector:
 # =============================================================================
 if __name__ == "__main__":
     # ---------- INPUT PATHS ----------
-    path_MODIS = './data/MODIS'
-    path_ERA5 = './data/ERA5'
-    path_land_mask = './data/land_mask'
-    path_NDVI = './data/NDVI'
-    path_DEM = './data/DEM'
+    path_MODIS = './data/MODIS/MOD_PWV.h5'
+    path_ERA5 = './data/ERA5/ERA5.h5'
+    path_land_mask = './data/land_mask/land_mask.shp'
+    path_NDVI = './data/NDVI/ndvi.h5'
+    path_DEM = './data/DEM/srtm_usa.tif'
 
     # ---------- OUTPUT PATHS ----------
     output_dir = './NBCM'
@@ -391,5 +391,6 @@ if __name__ == "__main__":
     )
 
     nbcm.run()
+
 
 
