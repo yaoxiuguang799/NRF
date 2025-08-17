@@ -4,7 +4,7 @@ from matplotlib import pyplot as plt
 import random
 random.seed(0)
 
-# 线性函数模型
+# polynomial model
 def polynomialModel(params,x,q):
     def polynomial2(params,x):
         a = params[0,0]
@@ -41,13 +41,13 @@ def polynomialModel(params,x,q):
     elif q == 5:
         return polynomial5(params,x)
 
-# 线性函数模型：y=a+b*x. 需要求解的参数为a,b
+# linear model：y=a+b*x. solve parameters: a,b
 def linearModel(params,x):
     a = params[0,0]
     b = params[1,0]
     return a + b * x
 
-# AVC模型函数模型：y=Acos(w*x+θ)+b. 需要求解的参数为A,theta,b
+# AVC model：y=Acos(w*x+θ)+b. solve parameters: A,theta, and b
 def avcModel(params,x):
     A = params[0,0]
     theta = params[1,0]
@@ -55,7 +55,7 @@ def avcModel(params,x):
     w = 2*np.pi/365
     return b + A*np.cos(w * x + theta)
 
-# AVCE模型函数模型：y=Acos(w*x+θ)+b+lamda*DPWVera5. 需要求解的参数为A,theta,b
+# AVCE model：y=Acos(w*x+θ)+b+lamda*DPWVera5. solve parameters: A,theta,b, and lamda
 def avceModel(params,x):
     A = params[0,0]
     theta = params[1,0]
@@ -69,16 +69,16 @@ def avceModel(params,x):
 def Levenberg_Marquardt(x,y,xk,callback):
     n_obs = len(y)
     n_params = xk.shape[0]
-    J = mat(np.zeros((n_obs,n_params)))      #雅克比矩阵
-    fx = mat(np.zeros((n_obs,1)))     # f(x)  100*1  误差
+    J = mat(np.zeros((n_obs,n_params)))      #
+    fx = mat(np.zeros((n_obs,1)))     # f(x)  100*1  
     fx_tmp = mat(np.zeros((n_obs,1)))
 
     lase_mse = 0
     step = 0
     u,v= 1,2
-    conve = 10000  # 最大迭代次数
-    xk_l = []  # 用来存放每次迭代的结果
-    def Deriv(params,x,n_obs):  # 对函数求偏导
+    conve = 10000  # 
+    xk_l = []  # 
+    def Deriv(params,x,n_obs):  # 
         x1 = params.copy()
         x2 = params.copy()
         x1[n_obs,0] -= 0.000001
@@ -94,8 +94,8 @@ def Levenberg_Marquardt(x,y,xk,callback):
         fx = callback(xk,x) - y
         mse += sum(fx**2)
         for j in range(n_params): 
-            J[:,j] = Deriv(xk,x,j) # 数值求导                                                    
-        mse /= n_obs  # 范围约束
+            J[:,j] = Deriv(xk,x,j) #                                                    
+        mse /= n_obs  # 
     
         H = J.T*J + u*np.eye(n_params)   # n_params*n_params
         dx = -H.I * J.T*fx        # 
@@ -126,15 +126,15 @@ def Levenberg_Marquardt(x,y,xk,callback):
         if abs(mse-lase_mse)<0.000001:
             break
         
-        lase_mse = mse  # 记录上一个 mse 的位置
+        lase_mse = mse  # 
         conve -= 1
         
     return xk_l
 
 def test_avcModel():
     n = 365   
-    A,theta,b = 10, 2.6, 14.4 # 这个是需要拟合的函数y(x) 的真实参数
-    h0 = np.arange(1,366,1).reshape(n,1) # 横坐标，天
+    A,theta,b = 10, 2.6, 14.4 # 
+    h0 = np.arange(1,366,1).reshape(n,1) # 
     y0 = [b + A*np.cos((2*np.pi/365) * t + theta)+random.gauss(0,2) for t in h0] # 带有噪声的序列
     h = np.arange(1,366,1).reshape(n,1)
     y = [b + A*np.cos((2*np.pi/365) * t + theta)+random.gauss(0,2) for t in h]
@@ -153,7 +153,7 @@ def test_avcModel():
     params0 = mat([[8.0],[2.0],[12.0]])
     xk_l = Levenberg_Marquardt(h,y,params0,avcModel)
 
-    #用拟合好的参数画图
+    #
     plt.figure(figsize=(10, 6))
     plt.title(f'Optimization Results (iter {len(xk_l)})', fontsize=30)
     plt.scatter(h, y, s=30, c='b')
@@ -207,8 +207,8 @@ def test_linearModel():
 
 def test_polynomialModel():
     n = 365   
-    a,b,c,d = 10,5,3,2 # 这个是需要拟合的函数y(x) 的真实参数
-    h0 = np.arange(1,366,1).reshape(n,1) # 横坐标，天
+    a,b,c,d = 10,5,3,2 # 
+    h0 = np.arange(1,366,1).reshape(n,1) #
     y0 = [a + b*t + c*t*t + d*t*t*t + random.gauss(0,50) for t in h0] # 带有噪声的序列
     h = np.arange(1,366,1).reshape(n,1)
     y = [a + b*t + c*t*t + d*t*t*t + random.gauss(0,50) for t in h0] # 带有噪声的序列
@@ -226,7 +226,7 @@ def test_polynomialModel():
     polynomial3 = polynomialModel(params0,h,3)
     xk_l = Levenberg_Marquardt(h,y,params0,polynomial3)
 
-    #用拟合好的参数画图
+    #
     plt.figure(figsize=(10, 6))
     plt.title(f'Optimization Results (iter {len(xk_l)})', fontsize=30)
     plt.scatter(h, y, s=30, c='b')
@@ -242,4 +242,5 @@ def test_polynomialModel():
     plt.legend(fontsize=20)
     plt.show()
 if __name__ == '__main__':
-    test_polynomialModel()
+    test_avcModel()
+
