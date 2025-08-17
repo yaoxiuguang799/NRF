@@ -310,7 +310,7 @@ class NBCMBiasCorrector:
         return self.corrected_path
 
 # =============================================================================
-# Example use  (you can directly run the file)
+# MAIN
 # =============================================================================
 if __name__ == "__main__":
     # ---------- INPUT PATHS ----------
@@ -333,4 +333,5 @@ if __name__ == "__main__":
         # Example: custom hyper-parameter grid
         # param_grid={"n_estimators":[300],"max_depth":[25]}
     )
+
     nbcm.run()
