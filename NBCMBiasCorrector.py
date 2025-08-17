@@ -128,10 +128,10 @@ class NBCMBiasCorrector:
 
         # --- parameter grid for RandomForest hyper-parameter tuning ---
         self.param_grid = param_grid or {
-            "n_estimators": [50, 100, 200],
-            "max_depth": [20, 30],
-            "min_samples_split": [2, 5],
-            "min_samples_leaf": [1, 2],
+            "n_estimators": [50, 100, 200, 400, 600],
+            "max_depth": [10, 20, 30, 50, 100],
+            "min_samples_split": [2, 5, 10],
+            "min_samples_leaf": [1, 2, 4],
         }
 
     # ---------------------------------------------------------------------
@@ -391,4 +391,5 @@ if __name__ == "__main__":
     )
 
     nbcm.run()
+
 
